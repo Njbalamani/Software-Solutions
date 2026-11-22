@@ -39,6 +39,250 @@ A production-oriented Django web application for a software development services
 | Images | Pillow |
 | Config | python-dotenv |
 
+## Diagrams & Project Workflow
+
+GitHub renders the Mermaid diagrams below natively.
+
+### 1. Full system architecture
+
+```mermaid
+flowchart LR
+    U[Browser / API client] --> W[Nginx reverse proxy<br/>HTTPS termination]
+    W --> G[Gunicorn WSGI server]
+    G --> S[Django project<br/>config.settings + config.urls]
+    S --> M[Middleware<br/>security headers, session,<br/>auth, CSRF, messages]
+    M --> V[Views / DRF views]
+    V --> F[Forms / Serializers]
+    F --> O[Models + Service helpers]
+    O --> DB[(SQLite / MySQL<br/>persistent data)]
+    O --> C[(Django cache<br/>rate limits)]
+    O --> E[SMTP email<br/>admin + submitter mail]
+    V --> T[Templates / JSON]
+    T --> U
+```
+
+### 2. Complete folder structure flow
+
+```mermaid
+flowchart TD
+    P[BALATECH Django project] --> CFG[config/<br/>settings.py, urls.py,<br/>wsgi.py, asgi.py]
+    P --> APPS[apps/]
+    P --> TPL[templates/<br/>base, pages, auth,<br/>emails, dashboard]
+    P --> STA[static/<br/>css/style.css<br/>js/main.js]
+    P --> MED[media/<br/>user uploads]
+    P --> TST[tests/<br/>test_smoke.py]
+    P --> ROOT[manage.py, requirements.txt,<br/>.env.example, .gitignore]
+
+    APPS --> ACC[accounts/<br/>models User + Profile<br/>views, forms, urls, signals]
+    APPS --> COR[core/<br/>SiteConfiguration, FAQ,<br/>NewsletterSubscriber, SEO,<br/>middleware, seed_data command]
+    APPS --> SER[services/<br/>ServiceCategory, Service]
+    APPS --> POR[portfolio/<br/>ProjectCategory,<br/>PortfolioProject]
+    APPS --> INQ[inquiries/<br/>ProjectInquiry, InquiryNote,<br/>email + rate-limit services]
+    APPS --> BLO[blog/<br/>BlogCategory, BlogPost,<br/>BlogComment]
+    APPS --> DAS[dashboard/<br/>staff CRUD, moderation,<br/>analytics, CSV exports]
+    APPS --> API[api/<br/>serializers, views,<br/>permissions, URLs]
+
+    ACC --> MIG[migrations/]
+    COR --> MIG
+    SER --> MIG
+    POR --> MIG
+    INQ --> MIG
+    BLO --> MIG
+```
+
+### 3. Backend request-handling sequence
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant U as config/urls.py
+    participant M as Middleware
+    participant V as View / API view
+    participant F as Form / Serializer
+    participant S as Model / Service
+    participant D as Database
+    participant R as Template / JSON
+
+    C->>U: HTTP request
+    U->>M: Resolve route
+    M->>V: request.user, session, messages, security headers
+    V->>F: Validate POST data and query params
+    F-->>V: cleaned_data or errors
+    V->>S: Query / save / helper call
+    S->>D: ORM read or write
+    D-->>S: Result
+    S-->>V: Objects / aggregates
+    V->>R: Render HTML or DRF response
+    R-->>C: HTTP response
+```
+
+### 4. URL routing map
+
+```mermaid
+flowchart LR
+    ROOT[config/urls.py] --> PUB[Public<br/>/ , /about/, /services/,<br/>/portfolio/, /blog/, /contact/,<br/>/search/]
+    ROOT --> ACC[/accounts/<br/>register, login, logout,<br/>password reset, account]
+    ROOT --> DASH[/dashboard/<br/>staff only<br/>CRUD, moderation, exports]
+    ROOT --> API[/api/<br/>services, portfolio, blog,<br/>inquiries, token, schema, docs]
+    ROOT --> ADM[/admin/<br/>Django Admin]
+    ROOT --> SYS[/robots.txt<br/>/sitemap.xml<br/>/health/]
+    ROOT --> ERR[403 / 404 / 500 handlers]
+```
+
+### 5. Data model relationships
+
+```mermaid
+erDiagram
+    USER ||--o| PROFILE : has
+    USER ||--o{ BLOGPOST : authors
+    USER ||--o{ INQUIRYNOTE : writes
+    USER ||--o{ PROJECTINQUIRY : assigned_to
+
+    SERVICECATEGORY ||--o{ SERVICE : contains
+    SERVICE ||--o{ PROJECTINQUIRY : requested_for
+
+    PROJECTCATEGORY ||--o{ PORTFOLIOPROJECT : contains
+
+    BLOGCATEGORY ||--o{ BLOGPOST : contains
+    BLOGPOST ||--o{ BLOGCOMMENT : receives
+
+    PROJECTINQUIRY ||--o{ INQUIRYNOTE : has
+
+    USER {
+        int id PK
+        string email UK
+        bool is_staff
+    }
+    SERVICE {
+        int id PK
+        string slug UK
+        string title
+        int views
+        bool is_published
+    }
+    PORTFOLIOPROJECT {
+        int id PK
+        string slug UK
+        string title
+        int views
+    }
+    BLOGPOST {
+        int id PK
+        string slug UK
+        string title
+        int views
+        bool is_published
+    }
+    PROJECTINQUIRY {
+        int id PK
+        string full_name
+        string email
+        string status
+        string budget
+        datetime created_at
+    }
+    BLOGCOMMENT {
+        int id PK
+        string author_name
+        bool is_approved
+    }
+    NEWSLETTERSUBSCRIBER {
+        int id PK
+        string email UK
+        bool is_active
+        string unsubscribe_token UK
+    }
+```
+
+Standalone content models (no foreign-key relationships): `SiteConfiguration`, `Statistic`, `Technology`, `Testimonial`, `FAQ`, and `NewsletterSubscriber`.
+
+### 6. Install and run workflow
+
+```mermaid
+flowchart TD
+    A[Clone repository] --> B[cd Software-Solutions]
+    B --> C[python -m venv venv]
+    C --> D[Activate venv]
+    D --> E[pip install -r requirements.txt]
+    E --> F[copy .env.example .env]
+    F --> G[Set SECRET_KEY,<br/>ALLOWED_HOSTS, email, DB]
+    G --> H[python manage.py check]
+    H --> I[python manage.py migrate]
+    I --> J[python manage.py seed_data]
+    J --> K[python manage.py createsuperuser]
+    K --> L[python manage.py runserver]
+    L --> M["Open http://127.0.0.1:8000/"]
+```
+
+### 7. Daily development loop
+
+```mermaid
+flowchart LR
+    A[Edit code] --> B[python manage.py check]
+    B --> C{Model changed?}
+    C -- Yes --> D[python manage.py makemigrations]
+    C -- No --> E[python manage.py migrate]
+    D --> E
+    E --> F[python manage.py test -v 0]
+    F --> G{Tests pass?}
+    G -- No --> A
+    G -- Yes --> H[Run server or commit]
+```
+
+### 8. Inquiry end-to-end lifecycle
+
+```mermaid
+flowchart TD
+    A[Contact form or<br/>POST /api/inquiries/] --> B{Honeypot empty?}
+    B -- No --> X[Silently reject]
+    B -- Yes --> C{Rate limited?}
+    C -- Yes --> Y[Return throttled response]
+    C -- No --> D[Form / Serializer validation]
+    D --> E{Valid and not duplicate?}
+    E -- No --> Z[Return field errors]
+    E -- Yes --> F[Save ProjectInquiry]
+    F --> G[Record rate-limit hit]
+    F --> H[notify_admin]
+    F --> I[notify_submitter]
+    H --> J[Staff dashboard]
+    I --> K[Submitter inbox]
+    J --> L[Assign to staff]
+    L --> M[Update status / add notes]
+    M --> N{Open longer than 48h?}
+    N -- Yes --> O[SLA breach flag]
+    N -- No --> P[Within SLA]
+```
+
+### 9. Authentication and permission flow
+
+```mermaid
+flowchart TD
+    A[Login / Registration] --> B[Custom User model]
+    B --> C{Authenticated?}
+    C -- No --> D[Redirect to login]
+    C -- Yes --> E{is_staff?}
+    E -- No --> F[Member account page]
+    E -- Yes --> G[Custom dashboard]
+    G --> H[StaffRequiredMixin checks]
+    H --> I[CRUD / moderation / exports]
+    A --> J[DRF token endpoint]
+    J --> K[TokenAuthentication]
+    K --> L[Protected inquiry API]
+```
+
+### 10. Deployment workflow
+
+```mermaid
+flowchart LR
+    A[DEBUG=False<br/>Strong SECRET_KEY<br/>ALLOWED_HOSTS] --> B[Configure SMTP + DB]
+    B --> C[pip install -r requirements.txt]
+    C --> D[python manage.py migrate]
+    D --> E[python manage.py collectstatic --noinput]
+    E --> F[gunicorn config.wsgi:application]
+    F --> G[Nginx + HTTPS]
+    G --> H[Monitor /health/]
+```
+
 ## Project Architecture
 
 ```
