@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Services — {{ site.site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Services</span>
+    <h1>Solutions engineered for <span class="gradient-text">real-world impact</span></h1>
+    <p>Comprehensive development services covering cloud applications, web platforms, databases, and custom software.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="filter-bar reveal">
+      <a href="{% url 'services:list' %}" class="filter-chip {% if not active_category %}active{% endif %}">All services</a>
+      {% for category in categories %}
+      <a href="{% url 'services:list' %}?category={{ category.slug }}" class="filter-chip {% if active_category.slug == category.slug %}active{% endif %}">{{ category.name }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="grid-2 service-list-grid">
+      {% for service in services %}
+      <article class="service-detail-card reveal">
+        <div class="card-icon">{{ service.icon|default:"◆" }}</div>
+        <span class="tag">{{ service.category.name }}</span>
+        <h2>{{ service.title }}</h2>
+        <p>{{ service.short_description }}</p>
+        <ul class="mini-features">
+          {% for feature in service.features_list|slice:":4" %}<li>{{ feature }}</li>{% endfor %}
+        </ul>
+        <div class="card-actions">
+          <a href="{% url 'services:detail' service.slug %}" class="btn btn-primary btn-sm">Learn More</a>
+          <a href="{% url 'inquiries:contact' %}?service={{ service.slug }}" class="btn btn-ghost btn-sm">Inquire</a>
+        </div>
+      </article>
+      {% empty %}
+      <div class="empty-state"><h3>No services found</h3><p>Published services will appear here.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container cta-inner reveal">
+    <div><h2>Need something tailored?</h2><p>Every engagement starts with a conversation about your goals.</p></div>
+    <a href="{% url 'inquiries:contact' %}" class="btn btn-light">Request a quote <span>&rarr;</span></a>
+  </div>
+</section>
+{% endblock %}

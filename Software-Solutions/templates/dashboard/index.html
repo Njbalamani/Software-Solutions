@@ -1,0 +1,77 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Overview — {{ site.site_name }}{% endblock %}
+{% block breadcrumb %}Overview{% endblock %}
+{% block content %}
+<div class="dash-page-head">
+  <div><span class="section-label">Admin dashboard</span><h1>Welcome back, {{ user.first_name|default:user.username }}</h1><p>Here's what's happening with your site.</p></div>
+  <a href="{% url 'admin:index' %}" class="btn btn-primary btn-sm">Open Django Admin</a>
+</div>
+
+<div class="dash-stats">
+  <a href="{% url 'dashboard:inquiries' %}" class="dash-stat"><span class="dash-stat-icon">✉</span><strong>{{ total_inquiries }}</strong><span>Total inquiries</span></a>
+  <a href="{% url 'dashboard:inquiries' %}?status=new" class="dash-stat"><span class="dash-stat-icon accent">●</span><strong>{{ new_inquiries }}</strong><span>New inquiries</span></a>
+  <a href="{% url 'dashboard:portfolio' %}" class="dash-stat"><span class="dash-stat-icon">▣</span><strong>{{ active_projects }}</strong><span>Active projects</span></a>
+  <a href="{% url 'dashboard:services' %}" class="dash-stat"><span class="dash-stat-icon">◇</span><strong>{{ published_services }}</strong><span>Published services</span></a>
+  <a href="{% url 'dashboard:portfolio' %}" class="dash-stat"><span class="dash-stat-icon">◈</span><strong>{{ portfolio_projects }}</strong><span>Portfolio projects</span></a>
+</div>
+
+<section class="dash-panel trend-panel">
+  <div class="panel-head"><h2>Inquiries — last 7 days</h2><span class="text-muted">Daily submissions</span></div>
+  <div class="trend-chart">
+    {% for day, count, percent in inquiry_trend %}
+    <div class="trend-col" title="{{ day|date:'M d, Y' }}: {{ count }} inquiry">
+      <div class="trend-track"><i style="height:{{ percent }}%"></i></div>
+      <strong>{{ count }}</strong><small>{{ day|date:'D' }}</small>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="dash-panel trend-panel">
+  <div class="panel-head"><h2>Most viewed content</h2><span class="text-muted">All time</span></div>
+  <div class="table-wrap">
+    <table class="dash-table">
+      <thead><tr><th>Title</th><th>Type</th><th>Views</th></tr></thead>
+      <tbody>
+        {% for title, views, kind in most_viewed %}
+        <tr><td><strong>{{ title }}</strong></td><td>{{ kind }}</td><td>{{ views }}</td></tr>
+        {% empty %}
+        <tr><td colspan="3" class="table-empty">No published content yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="dash-grid">
+  <section class="dash-panel">
+    <div class="panel-head"><h2>Recent messages</h2><a href="{% url 'dashboard:inquiries' %}">View all &rarr;</a></div>
+    <div class="table-wrap">
+      <table class="dash-table">
+        <thead><tr><th>Name</th><th>Service</th><th>Status</th><th>Received</th><th></th></tr></thead>
+        <tbody>
+          {% for inquiry in recent_inquiries %}
+          <tr>
+            <td><strong>{{ inquiry.full_name }}</strong><small>{{ inquiry.email }}</small></td>
+            <td>{{ inquiry.service.title|default:"—" }}</td>
+            <td><span class="badge badge-{{ inquiry.status }}">{{ inquiry.get_status_display }}</span></td>
+            <td>{{ inquiry.created_at|date:"M d, Y" }}</td>
+            <td><a href="{% url 'dashboard:inquiry_detail' inquiry.pk %}" class="table-link">Open</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="table-empty">No inquiries yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="dash-panel">
+    <div class="panel-head"><h2>Inquiry pipeline</h2></div>
+    <div class="pipeline">
+      {% for label, count in status_counts %}
+      <div class="pipeline-row"><span>{{ label }}</span><div class="pipeline-bar"><i style="width:{% if total_inquiries %}{% widthratio count total_inquiries 100 %}{% else %}0{% endif %}%"></i></div><strong>{{ count }}</strong></div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Comments — {{ site.site_name }}{% endblock %}
+{% block breadcrumb %}Comments{% endblock %}
+{% block content %}
+<div class="dash-page-head"><div><span class="section-label">Moderation</span><h1>Blog comments</h1><p>Approve or remove comments submitted by readers.</p></div></div>
+
+<section class="dash-panel" style="margin-bottom:1.5rem">
+  <div class="panel-head"><h2>Pending review</h2><span class="text-muted">{{ pending_comments.count }}</span></div>
+  <div class="table-wrap">
+    <table class="dash-table">
+      <thead><tr><th>Author</th><th>Article</th><th>Comment</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for comment in pending_comments %}
+        <tr>
+          <td><strong>{{ comment.author_name }}</strong><small>{{ comment.author_email }}</small></td>
+          <td>{{ comment.post.title }}</td>
+          <td>{{ comment.content|truncatechars:90 }}</td>
+          <td>{{ comment.created_at|date:"M d, Y" }}</td>
+          <td class="action-cell">
+            <form method="post" class="inline-form">{% csrf_token %}<input type="hidden" name="pk" value="{{ comment.pk }}"><button type="submit" name="approve" class="btn btn-sm btn-primary">Approve</button><button type="submit" name="delete" class="btn btn-sm btn-ghost">Delete</button></form>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="table-empty">No comments awaiting moderation.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="dash-panel">
+  <div class="panel-head"><h2>Recently approved</h2></div>
+  <div class="table-wrap">
+    <table class="dash-table">
+      <thead><tr><th>Author</th><th>Article</th><th>Comment</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for comment in approved_comments %}
+        <tr>
+          <td><strong>{{ comment.author_name }}</strong><small>{{ comment.author_email }}</small></td>
+          <td>{{ comment.post.title }}</td>
+          <td>{{ comment.content|truncatechars:90 }}</td>
+          <td>{{ comment.created_at|date:"M d, Y" }}</td>
+          <td class="action-cell"><form method="post" class="inline-form">{% csrf_token %}<input type="hidden" name="pk" value="{{ comment.pk }}"><button type="submit" name="delete" class="btn btn-sm btn-ghost">Delete</button></form></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="table-empty">No approved comments yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

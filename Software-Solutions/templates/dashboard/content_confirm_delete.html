@@ -1,0 +1,18 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ title }} — {{ site.site_name }}{% endblock %}
+{% block breadcrumb %}{{ title }}{% endblock %}
+{% block content %}
+<div class="dash-page-head"><div><span class="section-label">Confirm deletion</span><h1>{{ title }}</h1></div><a href="{% url url_name %}" class="btn btn-outline btn-sm">&larr; Back to list</a></div>
+
+<section class="dash-panel panel-pad">
+  <p>Are you sure you want to permanently delete <strong>{{ object }}</strong>?</p>
+  <p class="muted-text">This action cannot be undone.</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-actions">
+      <button type="submit" class="btn btn-danger">Yes, delete</button>
+      <a href="{% url url_name %}" class="btn btn-ghost">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

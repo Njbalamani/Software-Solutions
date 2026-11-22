@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}{{ service.title }} — {{ site.site_name }}{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Service","name":"{{ service.title|escapejs }}","description":"{{ service.short_description|escapejs }}","provider":{"@type":"Organization","name":"{{ site.site_name|escapejs }}","url":"{{ request.scheme }}://{{ request.get_host }}/"}}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-compact">
+  <div class="container">
+    <nav class="breadcrumbs"><a href="{% url 'core:home' %}">Home</a> / <a href="{% url 'services:list' %}">Services</a> / <span>{{ service.title }}</span></nav>
+    <div class="detail-heading">
+      <div class="card-icon big">{{ service.icon|default:"◆" }}</div>
+      <div>
+        <span class="eyebrow">{{ service.category.name }}</span>
+        <h1>{{ service.title }}</h1>
+      </div>
+    </div>
+    <p class="hero-lead">{{ service.short_description }}</p>
+    <div class="hero-actions">
+      <a href="{% url 'inquiries:contact' %}?service={{ service.slug }}" class="btn btn-primary">Inquire about this service <span>&rarr;</span></a>
+      <a href="{% url 'services:list' %}" class="btn btn-outline">Back to services</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container detail-grid">
+    <article class="detail-main reveal">
+      <span class="section-label">Overview</span>
+      <h2>What this service covers</h2>
+      <p class="lead">{{ service.description }}</p>
+
+      <h3 class="block-title">Key features</h3>
+      <ul class="check-list">
+        {% for feature in service.features_list %}<li>{{ feature }}</li>{% endfor %}
+      </ul>
+
+      {% if service.benefits_list %}
+      <h3 class="block-title">Benefits</h3>
+      <ul class="check-list">
+        {% for benefit in service.benefits_list %}<li>{{ benefit }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+    </article>
+
+    <aside class="detail-side">
+      <div class="info-card reveal">
+        <h3>Technology stack</h3>
+        <div class="stack-tags">
+          {% for tech in service.technologies_list %}<span class="stack-tag">{{ tech }}</span>{% endfor %}
+        </div>
+      </div>
+      {% if related_services %}
+      <div class="info-card reveal reveal-delay">
+        <h3>Related services</h3>
+        <ul class="footer-links">
+          {% for related in related_services %}<li><a href="{% url 'services:detail' related.slug %}">{{ related.title }} &rarr;</a></li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      <div class="info-card reveal reveal-delay">
+        <h3>Ready to start?</h3>
+        <p>Tell us about your project and we'll get back to you with a plan.</p>
+        <a href="{% url 'inquiries:contact' %}?service={{ service.slug }}" class="btn btn-primary btn-block">Send an inquiry</a>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

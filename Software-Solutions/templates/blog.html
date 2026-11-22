@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Blog — {{ site.site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Blog</span>
+    <h1>Insights from <span class="gradient-text">backend engineering</span></h1>
+    <p>Practical writing on Python, Django, cloud computing, databases, APIs, and security.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if featured %}
+    <a href="{% url 'blog:detail' featured.slug %}" class="featured-post reveal">
+      <div class="featured-content">
+        <span class="tag">Featured · {{ featured.category.name }}</span>
+        <h2>{{ featured.title }}</h2>
+        <p>{{ featured.excerpt }}</p>
+        <span class="card-link">Read article <span>&rarr;</span></span>
+      </div>
+      {% if featured.featured_image %}<img src="{{ featured.featured_image.url }}" alt="{{ featured.title }}">{% endif %}
+    </a>
+    {% endif %}
+
+    <form method="get" action="{% url 'blog:list' %}" class="search-form reveal">
+      <input type="search" name="q" value="{{ query }}" placeholder="Search articles..." class="form-control" aria-label="Search articles">
+      <button type="submit" class="btn btn-primary btn-sm">Search</button>
+    </form>
+
+    <div class="filter-bar reveal">
+      <a href="{% url 'blog:list' %}" class="filter-chip {% if not active_category %}active{% endif %}">All posts</a>
+      {% for category in categories %}
+      <a href="{% url 'blog:list' %}?category={{ category.slug }}" class="filter-chip {% if active_category.slug == category.slug %}active{% endif %}">{{ category.name }}</a>
+      {% endfor %}
+    </div>
+
+    <div class="grid-3">
+      {% for post in posts %}
+      <article class="post-card reveal">
+        <a href="{% url 'blog:detail' post.slug %}" class="post-image">
+          {% if post.featured_image %}<img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy">{% else %}<span class="thumb-placeholder">{ }</span>{% endif %}
+        </a>
+        <div class="post-body">
+          <span class="tag">{{ post.category.name }}</span>
+          <h3><a href="{% url 'blog:detail' post.slug %}">{{ post.title }}</a></h3>
+          <p>{{ post.excerpt }}</p>
+          <div class="post-meta">{{ post.published_at|date:"M d, Y" }} · {{ post.views }} views</div>
+        </div>
+      </article>
+      {% empty %}
+      <div class="empty-state"><h3>No articles found</h3><p>Try another search or category.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

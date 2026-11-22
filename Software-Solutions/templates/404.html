@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Page not found — {{ site.site_name }}{% endblock %}
+{% block content %}
+<section class="error-section">
+  <div class="reveal">
+    <div class="error-code">404</div>
+    <h1>Page not found</h1>
+    <p>The page you're looking for doesn't exist or has moved.</p>
+    <div class="hero-actions"><a href="{% url 'core:home' %}" class="btn btn-primary">Back to home</a><a href="{% url 'services:list' %}" class="btn btn-outline">Browse services</a></div>
+  </div>
+</section>
+{% endblock %}

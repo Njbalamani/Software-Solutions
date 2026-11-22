@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}About — {{ site.site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">About</span>
+    <h1>Engineering reliable digital <span class="gradient-text">solutions</span></h1>
+    <p>Backend &amp; cloud application development with a focus on clean architecture, security, and measurable results.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container about-grid">
+    <div class="about-main reveal">
+      <span class="section-label">Professional introduction</span>
+      <h2>Hello, I build software that <span class="gradient-text">lasts</span>.</h2>
+      <p class="lead">{{ site.about_intro }}</p>
+      <p>{{ site.about_experience }}</p>
+      <p>{{ site.about_approach }}</p>
+      <a href="{% url 'inquiries:contact' %}" class="btn btn-primary">Work with me <span>&rarr;</span></a>
+    </div>
+    <aside class="about-side reveal reveal-delay">
+      <div class="info-card">
+        <h3>At a glance</h3>
+        <ul class="info-list">
+          <li><span>Focus</span><strong>Backend &amp; Cloud</strong></li>
+          <li><span>Experience</span><strong>{{ site.career_experience }}</strong></li>
+          <li><span>Location</span><strong>{{ site.location|default:"Remote / Available globally" }}</strong></li>
+          <li><span>Availability</span><strong>Open for projects</strong></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Expertise</span>
+      <h2>Technical <span class="gradient-text">skills</span></h2>
+      <p>Deep experience across the stack that powers modern backend and cloud applications.</p>
+    </div>
+    <div class="grid-3">
+      <article class="service-card reveal"><div class="card-icon">◆</div><h3>Backend Development</h3><p>Python, Django, Java, Spring Boot — designing maintainable services and robust APIs.</p></article>
+      <article class="service-card reveal"><div class="card-icon">◇</div><h3>REST APIs &amp; Integration</h3><p>REST API design, JWT authentication, OAuth 2.0, Postman testing, and Swagger documentation.</p></article>
+      <article class="service-card reveal"><div class="card-icon">▣</div><h3>Databases</h3><p>MySQL and PostgreSQL data modeling, query optimization, indexing, and maintenance.</p></article>
+      <article class="service-card reveal"><div class="card-icon">☁</div><h3>Cloud &amp; DevOps</h3><p>AWS EC2 deployment, Docker containerization, application hosting, and monitoring.</p></article>
+      <article class="service-card reveal"><div class="card-icon">◈</div><h3>Security</h3><p>Input validation, permission checks, CSRF/XSS protection, and secure configuration.</p></article>
+      <article class="service-card reveal"><div class="card-icon">⌘</div><h3>Architecture</h3><p>Microservices patterns, clean layering, and scalable application architecture.</p></article>
+    </div>
+    <div class="tech-grid tech-grid-compact">
+      {% for tech in technologies %}<span class="tech-chip reveal">{{ tech.name }}</span>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Development process</span>
+      <h2>How work moves from <span class="gradient-text">idea to launch</span></h2>
+    </div>
+    <div class="process-grid">
+      <div class="process-step reveal"><span>01</span><h3>Discovery</h3><p>Understand goals, constraints, and requirements.</p></div>
+      <div class="process-step reveal"><span>02</span><h3>Design</h3><p>Plan architecture, data models, and API contracts.</p></div>
+      <div class="process-step reveal"><span>03</span><h3>Development</h3><p>Build in iterative, reviewable increments.</p></div>
+      <div class="process-step reveal"><span>04</span><h3>Testing</h3><p>Validate functionality, security, and edge cases.</p></div>
+      <div class="process-step reveal"><span>05</span><h3>Deployment</h3><p>Deploy, monitor, and optimize in production.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="container cta-inner reveal">
+    <div><h2>Let's discuss your next project.</h2><p>Share your requirements and get a clear technical plan.</p></div>
+    <a href="{% url 'inquiries:contact' %}" class="btn btn-light">Start a conversation <span>&rarr;</span></a>
+  </div>
+</section>
+{% endblock %}

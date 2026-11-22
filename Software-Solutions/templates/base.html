@@ -1,0 +1,121 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{{ site.meta_description }}">
+  <title>{% block title %}{{ site.site_name }} — {{ site.tagline }}{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1220'/%3E%3Cpath d='M18 20l14 24 14-24' stroke='%2300d4ff' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block structured_data %}
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Organization","name":"{{ site.site_name|escapejs }}","url":"{{ request.scheme }}://{{ request.get_host }}/","description":"{{ site.meta_description|escapejs }}","email":"{{ site.email|escapejs }}"}
+  </script>
+  {% endblock %}
+</head>
+<body>
+  <div class="page-progress" id="pageProgress"></div>
+
+  <header class="site-header" id="siteHeader">
+    <div class="container nav-wrap">
+      <a href="{% url 'core:home' %}" class="brand" aria-label="{{ site.site_name }} home">
+        <span class="brand-mark">B</span>
+        <span class="brand-text">BALA<span>TECH</span></span>
+      </a>
+
+      <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+        <a href="{% url 'core:home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+        <a href="{% url 'core:about' %}" class="nav-link {% if request.path == '/about/' %}active{% endif %}">About</a>
+        <a href="{% url 'services:list' %}" class="nav-link {% if request.resolver_match.namespace == 'services' %}active{% endif %}">Services</a>
+        <a href="{% url 'portfolio:list' %}" class="nav-link {% if request.resolver_match.namespace == 'portfolio' %}active{% endif %}">Portfolio</a>
+        <a href="{% url 'blog:list' %}" class="nav-link {% if request.resolver_match.namespace == 'blog' %}active{% endif %}">Blog</a>
+        <a href="{% url 'core:search' %}" class="nav-link nav-search {% if request.resolver_match.url_name == 'search' %}active{% endif %}" aria-label="Search site">Search</a>
+        <a href="{% url 'inquiries:contact' %}" class="nav-link {% if request.resolver_match.namespace == 'inquiries' %}active{% endif %}">Contact</a>
+        <a href="{% url 'inquiries:contact' %}?subject=quote" class="btn btn-primary btn-sm nav-cta">Get a Quote</a>
+        {% if user.is_authenticated %}
+          {% if user.is_staff or user.is_superuser %}
+          <a href="{% url 'dashboard:index' %}" class="nav-link dashboard-link">Dashboard</a>
+          {% else %}
+          <a href="{% url 'accounts:account' %}" class="nav-link dashboard-link">My Account</a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'accounts:login' %}" class="nav-link dashboard-link">Log in</a>
+        {% endif %}
+      </nav>
+
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle theme">◐</button>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main-content">
+    {% if messages %}<div class="container site-messages">{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a href="{% url 'core:home' %}" class="brand">
+          <span class="brand-mark">B</span>
+          <span class="brand-text">BALA<span>TECH</span></span>
+        </a>
+        <p>Cloud &amp; software development solutions built for scalability, security, and long-term value.</p>
+        <div class="social-links">
+          {% if site.github_url %}<a href="{{ site.github_url }}" target="_blank" rel="noopener" aria-label="GitHub">GH</a>{% endif %}
+          {% if site.linkedin_url %}<a href="{{ site.linkedin_url }}" target="_blank" rel="noopener" aria-label="LinkedIn">IN</a>{% endif %}
+          {% if site.twitter_url %}<a href="{{ site.twitter_url }}" target="_blank" rel="noopener" aria-label="Twitter">X</a>{% endif %}
+        </div>
+        <form method="post" action="{% url 'core:newsletter_subscribe' %}" class="newsletter-form" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <div class="honeypot" aria-hidden="true"><label for="newsletter-website">Leave this field empty</label><input id="newsletter-website" type="text" name="website" tabindex="-1" autocomplete="off"></div>
+          <input type="email" name="email" placeholder="Email for updates" class="form-control" aria-label="Email for newsletter" required>
+          <button type="submit" class="btn btn-primary btn-sm">Subscribe</button>
+        </form>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'core:home' %}">Home</a></li>
+          <li><a href="{% url 'core:about' %}">About</a></li>
+          <li><a href="{% url 'services:list' %}">Services</a></li>
+          <li><a href="{% url 'portfolio:list' %}">Portfolio</a></li>
+          <li><a href="{% url 'blog:list' %}">Blog</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Services</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'services:list' %}">Cloud Applications</a></li>
+          <li><a href="{% url 'services:list' %}">Web Development</a></li>
+          <li><a href="{% url 'services:list' %}">Database Development</a></li>
+          <li><a href="{% url 'services:list' %}">Custom Software</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Get in touch</h4>
+        <ul class="footer-links contact-list">
+          <li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>
+          {% if site.phone %}<li>{{ site.phone }}</li>{% endif %}
+          {% if site.location %}<li>{{ site.location }}</li>{% endif %}
+          <li><a href="{% url 'inquiries:contact' %}">Send an inquiry &rarr;</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; {% now "Y" %} {{ site.site_name }}. All rights reserved.</p>
+      <p>Built with Django &amp; a focus on clean architecture.</p>
+    </div>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">&uarr;</button>
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

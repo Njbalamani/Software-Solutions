@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ site.site_name }} — {{ site.tagline }}{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-glow hero-glow-one"></div>
+  <div class="hero-glow hero-glow-two"></div>
+  <div class="container hero-grid">
+    <div class="hero-copy reveal">
+      <span class="eyebrow"><span class="pulse"></span> Cloud &amp; Software Development</span>
+      <h1>{{ site.hero_heading }}</h1>
+      <p class="hero-lead">{{ site.hero_description }}</p>
+      <div class="hero-actions">
+        <a href="{% url 'services:list' %}" class="btn btn-primary">Explore Our Services <span>&rarr;</span></a>
+        <a href="{% url 'inquiries:contact' %}" class="btn btn-outline">Start Your Project</a>
+      </div>
+      <div class="hero-trust">
+        <span><strong>Clean architecture</strong></span>
+        <span><strong>Secure by design</strong></span>
+        <span><strong>Built to scale</strong></span>
+      </div>
+    </div>
+    <div class="hero-visual reveal reveal-delay">
+      <div class="code-window">
+        <div class="window-bar"><span></span><span></span><span></span><small>architecture.py</small></div>
+        <div class="window-body">
+<pre><code><span class="c-key">class</span> <span class="c-fn">DigitalSolution</span>:
+    <span class="c-key">def</span> <span class="c-fn">__init__</span>(self):
+        self.stack = [
+            <span class="c-str">"Python / Django"</span>,
+            <span class="c-str">"REST APIs"</span>,
+            <span class="c-str">"PostgreSQL"</span>,
+            <span class="c-str">"Docker / AWS"</span>
+        ]
+
+    <span class="c-key">def</span> <span class="c-fn">build</span>(self, idea):
+        <span class="c-key">return</span> scalable(
+            secure(idea),
+            tested=<span class="c-bool">True</span>
+        )
+</code></pre>
+        </div>
+        <div class="window-status"><span class="status-dot"></span> Deployed successfully <span class="status-time">v1.0.0</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">What we do</span>
+      <h2>Services built around your <span class="gradient-text">ambition</span></h2>
+      <p>From concept to deployment, every solution is engineered for reliability, performance, and growth.</p>
+    </div>
+    <div class="grid-4">
+      {% for service in services %}
+      <article class="service-card reveal">
+        <div class="card-icon">{{ service.icon|default:"◆" }}</div>
+        <h3>{{ service.title }}</h3>
+        <p>{{ service.short_description }}</p>
+        <a href="{% url 'services:detail' service.slug %}" class="card-link">Learn More <span>&rarr;</span></a>
+      </article>
+      {% empty %}
+      <p class="empty-note">Services will be published here soon.</p>
+      {% endfor %}
+    </div>
+    <div class="center-cta reveal"><a href="{% url 'services:list' %}" class="btn btn-outline">View all services</a></div>
+  </div>
+</section>
+
+<section class="section section-alt" id="technology">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Technology stack</span>
+      <h2>Tools we use to <span class="gradient-text">deliver</span></h2>
+      <p>A pragmatic, modern stack chosen for stability, performance, and developer productivity.</p>
+    </div>
+    <div class="tech-grid">
+      {% for tech in technologies %}
+      <div class="tech-chip reveal"><span class="tech-icon">{{ tech.icon|default:"◆" }}</span>{{ tech.name }}</div>
+      {% empty %}
+      <span class="tech-chip">Python</span><span class="tech-chip">Django</span><span class="tech-chip">MySQL</span>
+      <span class="tech-chip">PostgreSQL</span><span class="tech-chip">Docker</span><span class="tech-chip">AWS</span>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section" id="why-us">
+  <div class="container why-grid">
+    <div class="why-copy reveal">
+      <span class="section-label">Why choose us</span>
+      <h2>Engineering quality you can <span class="gradient-text">count on</span></h2>
+      <p>We combine disciplined engineering practices with a deep understanding of backend systems and cloud infrastructure.</p>
+      <a href="{% url 'core:about' %}" class="card-link">More about the approach <span>&rarr;</span></a>
+    </div>
+    <div class="why-list">
+      <div class="why-item reveal"><span class="check">✓</span><div><h4>Clean and scalable architecture</h4><p>Structured for maintainability and future growth.</p></div></div>
+      <div class="why-item reveal"><span class="check">✓</span><div><h4>Secure backend development</h4><p>Authentication, validation, and hardened configurations.</p></div></div>
+      <div class="why-item reveal"><span class="check">✓</span><div><h4>Reliable database management</h4><p>Thoughtful data modeling, indexing, and optimization.</p></div></div>
+      <div class="why-item reveal"><span class="check">✓</span><div><h4>Performance optimization</h4><p>Fast, efficient applications that handle real workloads.</p></div></div>
+      <div class="why-item reveal"><span class="check">✓</span><div><h4>API integration</h4><p>Well-documented REST APIs and third-party integrations.</p></div></div>
+      <div class="why-item reveal"><span class="check">✓</span><div><h4>Professional development practices</h4><p>Version control, testing, and documented delivery.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="stats-grid">
+      {% for stat in statistics %}
+      <div class="stat-card reveal"><div class="stat-value" data-count="{{ stat.value }}">{{ stat.value }}</div><span class="stat-suffix">{{ stat.suffix }}</span><p>{{ stat.label }}</p></div>
+      {% empty %}
+      <p class="empty-note">Statistics can be configured in the admin dashboard.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% if featured_projects %}
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Selected work</span>
+      <h2>Recent <span class="gradient-text">projects</span></h2>
+      <p>A look at solutions delivered across web, cloud, and backend systems.</p>
+    </div>
+    <div class="grid-3">
+      {% for project in featured_projects %}
+      <article class="project-card reveal">
+        <a href="{% url 'portfolio:detail' project.slug %}" class="project-thumb">
+          {% if project.screenshot %}<img src="{{ project.screenshot.url }}" alt="{{ project.title }} screenshot" loading="lazy">{% else %}<span class="thumb-placeholder">&lt;/&gt;</span>{% endif %}
+        </a>
+        <div class="project-body">
+          <span class="tag">{{ project.category.name }}</span>
+          <h3><a href="{% url 'portfolio:detail' project.slug %}">{{ project.title }}</a></h3>
+          <p>{{ project.short_description }}</p>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <div class="center-cta reveal"><a href="{% url 'portfolio:list' %}" class="btn btn-outline">View all projects</a></div>
+  </div>
+</section>
+{% endif %}
+
+{% if testimonials %}
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">Testimonials</span>
+      <h2>What clients <span class="gradient-text">say</span></h2>
+    </div>
+    <div class="grid-3">
+      {% for t in testimonials %}
+      <article class="testimonial-card reveal">
+        <div class="stars">{% for i in "12345"|make_list %}{% if forloop.counter <= t.rating %}★{% else %}☆{% endif %}{% endfor %}</div>
+        <p>"{{ t.message }}"</p>
+        <div class="testimonial-author"><strong>{{ t.client_name }}</strong>{% if t.client_role or t.company %}<span>{{ t.client_role }}{% if t.client_role and t.company %} · {% endif %}{{ t.company }}</span>{% endif %}</div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if recent_posts %}
+<section class="section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">From the blog</span>
+      <h2>Latest <span class="gradient-text">insights</span></h2>
+    </div>
+    <div class="grid-3">
+      {% for post in recent_posts %}
+      <article class="post-card reveal">
+        <span class="tag">{{ post.category.name }}</span>
+        <h3><a href="{% url 'blog:detail' post.slug %}">{{ post.title }}</a></h3>
+        <p>{{ post.excerpt }}</p>
+        <div class="post-meta">{{ post.published_at|date:"M d, Y" }} · {{ post.views }} views</div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if faqs %}
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-label">FAQ</span>
+      <h2>Common <span class="gradient-text">questions</span></h2>
+      <p>Answers to questions clients often ask before starting a project.</p>
+    </div>
+    <div class="faq-list" style="max-width:820px;margin-inline:auto">
+      {% for faq in faqs %}
+      <details class="faq-item reveal">
+        <summary><span>{{ faq.question }}</span><i>+</i></summary>
+        <div class="faq-answer">{{ faq.answer|linebreaks }}</div>
+      </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<section class="cta-section">
+  <div class="container cta-inner reveal">
+    <div>
+      <h2>Have an Idea? Let's Build Something Amazing.</h2>
+      <p>Tell us about your project and we'll help you turn it into a reliable digital product.</p>
+    </div>
+    <a href="{% url 'inquiries:contact' %}" class="btn btn-light">Contact Us <span>&rarr;</span></a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Search — {{ site.site_name }}{% endblock %}
+{% block content %}
+<section class="page-hero page-hero-compact"><div class="container"><span class="eyebrow">Search</span><h1>Find something on the site</h1><p>Search across services, projects, and articles.</p></div></section>
+
+<section class="section">
+  <div class="container">
+    <form method="get" action="{% url 'core:search' %}" class="search-form search-form-large reveal">
+      <input type="search" name="q" value="{{ query }}" placeholder="Try “Django”, “cloud”, or “database”..." class="form-control" aria-label="Search the site" autofocus>
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    {% if query %}
+      <p class="search-summary reveal">{{ total }} result{{ total|pluralize }} for <strong>“{{ query }}”</strong></p>
+
+      {% if services %}
+      <div class="search-group reveal"><h2>Services</h2><ul class="result-list">
+        {% for service in services %}<li><a href="{% url 'services:detail' service.slug %}">{{ service.title }}</a><p>{{ service.short_description }}</p></li>{% endfor %}
+      </ul></div>
+      {% endif %}
+
+      {% if projects %}
+      <div class="search-group reveal"><h2>Projects</h2><ul class="result-list">
+        {% for project in projects %}<li><a href="{% url 'portfolio:detail' project.slug %}">{{ project.title }}</a><p>{{ project.short_description }}</p></li>{% endfor %}
+      </ul></div>
+      {% endif %}
+
+      {% if posts %}
+      <div class="search-group reveal"><h2>Articles</h2><ul class="result-list">
+        {% for post in posts %}<li><a href="{% url 'blog:detail' post.slug %}">{{ post.title }}</a><p>{{ post.excerpt }}</p></li>{% endfor %}
+      </ul></div>
+      {% endif %}
+
+      {% if not total %}
+      <div class="empty-state reveal"><h3>No results found</h3><p>Try a different keyword or browse the <a href="{% url 'services:list' %}">services</a> and <a href="{% url 'blog:list' %}">blog</a>.</p></div>
+      {% endif %}
+    {% else %}
+      <div class="empty-state reveal"><h3>What are you looking for?</h3><p>Enter a keyword above to search published content.</p></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

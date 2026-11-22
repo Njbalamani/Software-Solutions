@@ -1,0 +1,38 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ title }} — {{ site.site_name }}{% endblock %}
+{% block breadcrumb %}{{ title }}{% endblock %}
+{% block content %}
+<div class="dash-page-head"><div><span class="section-label">Management</span><h1>{{ title }}</h1><p>Create, edit, publish, or delete content directly from the dashboard.</p></div><div class="head-actions"><a href="{% url 'admin:index' %}" class="btn btn-ghost btn-sm">Django Admin</a><a href="{% url create_url_name %}" class="btn btn-primary btn-sm">+ Add new</a></div></div>
+
+<section class="dash-panel">
+  <div class="table-wrap">
+    <table class="dash-table">
+      <thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Updated</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td><strong>{{ item.title }}</strong></td>
+          <td>{{ item.category.name|default:"—" }}</td>
+          <td>
+            {% if item.is_published %}<span class="badge badge-completed">Published</span>{% else %}<span class="badge badge-new">Draft</span>{% endif %}
+            {% if item.is_featured %}<span class="badge badge-featured">Featured</span>{% endif %}
+          </td>
+          <td>{{ item.updated_at|date:"M d, Y" }}</td>
+          <td class="action-cell">
+            <a href="{% url edit_url_name item.pk %}" class="btn btn-ghost btn-xs">Edit</a>
+            <form method="post" class="inline-form">
+              {% csrf_token %}<input type="hidden" name="pk" value="{{ item.pk }}">
+              {% if item.is_featured %}<button type="submit" name="toggle_featured" value="1" class="btn btn-ghost btn-xs">Unfeature</button>
+              {% else %}<button type="submit" class="btn btn-ghost btn-xs">Toggle publish</button>{% endif %}
+            </form>
+            <a href="{% url delete_url_name item.pk %}" class="btn btn-danger btn-xs">Delete</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="table-empty">No items yet. <a href="{% url create_url_name %}">Add the first one</a>.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

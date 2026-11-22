@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Register — {{ site.site_name }}{% endblock %}
+{% block content %}
+<section class="auth-section">
+  <div class="auth-card reveal">
+    <span class="eyebrow">Join BALATECH</span>
+    <h1>Create your account</h1>
+    <p class="muted-text">Track your inquiries and manage your projects.</p>
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<small class="field-help">{{ field.help_text|striptags }}</small>{% endif %}
+        {{ field.errors }}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary btn-block">Create account <span>&rarr;</span></button>
+    </form>
+    <div class="auth-links"><span>Already have an account?</span><a href="{% url 'accounts:login' %}">Log in</a></div>
+  </div>
+</section>
+{% endblock %}

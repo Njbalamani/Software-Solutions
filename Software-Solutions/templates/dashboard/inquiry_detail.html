@@ -1,0 +1,73 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Inquiry #{{ inquiry.pk }} — {{ site.site_name }}{% endblock %}
+{% block breadcrumb %}Inquiries / #{{ inquiry.pk }}{% endblock %}
+{% block content %}
+<div class="dash-page-head"><div><span class="section-label">Inquiry #{{ inquiry.pk }}</span><h1>{{ inquiry.full_name }}</h1><p>Received {{ inquiry.created_at|date:"F d, Y H:i" }}</p></div><a href="{% url 'dashboard:inquiries' %}" class="btn btn-outline btn-sm">&larr; All inquiries</a></div>
+
+<div class="dash-grid dash-grid-wide">
+  <div>
+    <section class="dash-panel panel-pad">
+      <div class="panel-head"><h2>Client details</h2><span class="badge badge-{{ inquiry.status }}">{{ inquiry.get_status_display }}</span></div>
+      <dl class="detail-list">
+        <div><dt>Email</dt><dd><a href="mailto:{{ inquiry.email }}">{{ inquiry.email }}</a></dd></div>
+        <div><dt>Phone</dt><dd>{{ inquiry.phone|default:"—" }}</dd></div>
+        <div><dt>Company</dt><dd>{{ inquiry.company_name|default:"—" }}</dd></div>
+        <div><dt>Service</dt><dd>{{ inquiry.service.title|default:"—" }}</dd></div>
+        <div><dt>Budget</dt><dd>{{ inquiry.get_budget_display }}</dd></div>
+        <div><dt>IP address</dt><dd>{{ inquiry.ip_address|default:"—" }}</dd></div>
+      </dl>
+      <h3 class="block-title">Project description</h3>
+      <div class="description-box">{{ inquiry.description|linebreaks }}</div>
+    </section>
+
+    <section class="dash-panel panel-pad">
+      <div class="panel-head"><h2>Internal notes</h2><span>{{ notes|length }}</span></div>
+      {% for note in notes %}
+      <div class="note-item"><div class="note-meta"><strong>{{ note.author.username|default:"System" }}</strong><span>{{ note.created_at|date:"M d, Y H:i" }}</span></div><p>{{ note.note|linebreaks }}</p></div>
+      {% empty %}<p class="muted-text">No internal notes yet.</p>{% endfor %}
+      <form method="post" class="note-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add_note">
+        <textarea name="note" class="form-control" rows="3" placeholder="Add an internal note (only admins can see this)..." required></textarea>
+        <button type="submit" class="btn btn-primary btn-sm">Add note</button>
+      </form>
+    </section>
+  </div>
+
+  <div>
+    <section class="dash-panel panel-pad">
+      <h2>Update status</h2>
+      <form method="post" class="stack-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="update_status">
+        <select name="status" class="form-control">
+          {% for value, label in statuses %}<option value="{{ value }}" {% if inquiry.status == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm btn-block">Save status</button>
+      </form>
+    </section>
+    <section class="dash-panel panel-pad">
+      <h2>Assign to</h2>
+      {% if inquiry.sla_breached %}<p class="badge badge-rejected">SLA breached — no response in 48h</p>{% endif %}
+      <form method="post" class="stack-form">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="assign">
+        <select name="assigned_to" class="form-control">
+          <option value="">Unassigned</option>
+          {% for user in staff_users %}<option value="{{ user.pk }}" {% if inquiry.assigned_to_id == user.pk %}selected{% endif %}>{{ user.get_full_name|default:user.username }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary btn-sm btn-block">Save assignment</button>
+      </form>
+    </section>
+    <section class="dash-panel panel-pad">
+      <h2>Delete inquiry</h2>
+      <p class="muted-text">Use this for spam or duplicate requests.</p>
+      <form method="post" onsubmit="return confirm('Delete this inquiry permanently?');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="delete">
+        <button type="submit" class="btn btn-danger btn-sm btn-block">Delete permanently</button>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

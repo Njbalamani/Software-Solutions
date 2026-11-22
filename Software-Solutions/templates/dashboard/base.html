@@ -1,0 +1,57 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Dashboard — {{ site.site_name }}{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1220'/%3E%3Cpath d='M18 20l14 24 14-24' stroke='%2300d4ff' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-layout">
+    <aside class="dashboard-sidebar" id="dashboardSidebar">
+      <a href="{% url 'core:home' %}" class="brand sidebar-brand">
+        <span class="brand-mark">B</span><span class="brand-text">BALA<span>TECH</span></span>
+      </a>
+      <div class="sidebar-label">Management</div>
+      <nav class="sidebar-nav">
+        <a href="{% url 'dashboard:index' %}" class="sidebar-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}"><span>▦</span> Overview</a>
+        <a href="{% url 'dashboard:inquiries' %}" class="sidebar-link {% if 'inquir' in request.resolver_match.url_name %}active{% endif %}"><span>✉</span> Inquiries</a>
+        <a href="{% url 'dashboard:services' %}" class="sidebar-link {% if request.resolver_match.url_name == 'services' %}active{% endif %}"><span>◇</span> Services</a>
+        <a href="{% url 'dashboard:portfolio' %}" class="sidebar-link {% if request.resolver_match.url_name == 'portfolio' %}active{% endif %}"><span>▣</span> Portfolio</a>
+        <a href="{% url 'dashboard:blog' %}" class="sidebar-link {% if request.resolver_match.url_name == 'blog' %}active{% endif %}"><span>▤</span> Blog</a>
+        <a href="{% url 'dashboard:comments' %}" class="sidebar-link {% if request.resolver_match.url_name == 'comments' %}active{% endif %}"><span>❝</span> Comments</a>
+        <a href="{% url 'dashboard:newsletters' %}" class="sidebar-link {% if request.resolver_match.url_name == 'newsletters' %}active{% endif %}"><span>✦</span> Newsletter</a>
+        <a href="{% url 'dashboard:profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"><span>◎</span> Profile</a>
+      </nav>
+      <div class="sidebar-label">System</div>
+      <nav class="sidebar-nav">
+        <a href="{% url 'admin:index' %}" class="sidebar-link"><span>⚙</span> Django Admin</a>
+        <a href="{% url 'core:home' %}" class="sidebar-link"><span>↗</span> View Website</a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar">{{ user.get_full_name|default:user.username|first|upper }}</div>
+        <div><strong>{{ user.get_full_name|default:user.username }}</strong><span>{{ user.email }}</span></div>
+      </div>
+    </aside>
+
+    <div class="dashboard-main">
+      <header class="dashboard-topbar">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">☰</button>
+        <div class="topbar-title"><span>{% block breadcrumb %}Overview{% endblock %}</span></div>
+        <div class="topbar-actions">
+          <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle light/dark theme" title="Toggle theme">◐</button>
+          <a href="{% url 'inquiries:contact' %}" class="btn btn-ghost btn-sm">View site</a>
+          <a href="{% url 'accounts:logout' %}" class="btn btn-outline btn-sm">Log out</a>
+        </div>
+      </header>
+      <div class="dashboard-content">
+        {% if messages %}{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}{% endif %}
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

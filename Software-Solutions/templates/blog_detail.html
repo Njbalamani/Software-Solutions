@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} — {{ site.site_name }}{% endblock %}
+{% block structured_data %}
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"{{ post.title|escapejs }}","description":"{{ post.excerpt|escapejs }}","datePublished":"{{ post.published_at|date:'c' }}","author":{"@type":"Person","name":"{{ post.author.get_full_name|default:post.author.username|escapejs }}"},"mainEntityOfPage":"{{ request.scheme }}://{{ request.get_host }}{{ request.path|escapejs }}"}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-compact">
+  <div class="container">
+    <nav class="breadcrumbs"><a href="{% url 'core:home' %}">Home</a> / <a href="{% url 'blog:list' %}">Blog</a> / <span>{{ post.title }}</span></nav>
+    <span class="eyebrow">{{ post.category.name }}</span>
+    <h1>{{ post.title }}</h1>
+    <p class="post-meta">By {{ post.author.get_full_name|default:post.author.username }} · {{ post.published_at|date:"F d, Y" }} · {{ post.views }} views</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container detail-grid">
+    <article class="detail-main post-content reveal">
+      {% if post.featured_image %}<img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="post-hero-image">{% endif %}
+      <p class="lead">{{ post.excerpt }}</p>
+      <div class="article-body">{{ post.content|linebreaks }}</div>
+      <div class="share-row"><a href="{% url 'blog:list' %}" class="btn btn-outline btn-sm">&larr; Back to blog</a></div>
+    </article>
+    <aside class="detail-side">
+      <div class="info-card reveal">
+        <h3>Categories</h3>
+        <ul class="footer-links">
+          <li><a href="{% url 'blog:list' %}?category={{ post.category.slug }}">{{ post.category.name }} &rarr;</a></li>
+        </ul>
+      </div>
+      {% if related_posts %}
+      <div class="info-card reveal reveal-delay">
+        <h3>Related articles</h3>
+        <ul class="footer-links">
+          {% for related in related_posts %}<li><a href="{% url 'blog:detail' related.slug %}">{{ related.title }} &rarr;</a></li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      <div class="info-card reveal reveal-delay">
+        <h3>Have a project in mind?</h3>
+        <p>We'd love to hear about it.</p>
+        <a href="{% url 'inquiries:contact' %}" class="btn btn-primary btn-block">Contact us</a>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container" style="max-width:820px">
+    <div class="section-head reveal"><span class="section-label">Discussion</span><h2>Comments <span class="muted-count">({{ comments.count }})</span></h2></div>
+
+    {% if comments %}
+    <div class="comment-list reveal">
+      {% for comment in comments %}
+      <article class="comment-item"><div class="comment-avatar">{{ comment.author_name|first|upper }}</div><div><strong>{{ comment.author_name }}</strong><small>{{ comment.created_at|date:"M d, Y" }}</small><p>{{ comment.content|linebreaksbr }}</p></div></article>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="reveal" style="color:var(--text-muted)">No comments yet. Be the first to share your thoughts.</p>
+    {% endif %}
+
+    <form method="post" class="comment-form card reveal" novalidate>
+      {% csrf_token %}
+      <div class="honeypot" aria-hidden="true"><label for="comment-website">Leave this field empty</label><input id="comment-website" type="text" name="website" tabindex="-1" autocomplete="off"></div>
+      <div class="form-row">
+        <div class="form-group"><label for="{{ comment_form.author_name.id_for_label }}">Name *</label>{{ comment_form.author_name }}{{ comment_form.author_name.errors }}</div>
+        <div class="form-group"><label for="{{ comment_form.author_email.id_for_label }}">Email *</label>{{ comment_form.author_email }}{{ comment_form.author_email.errors }}</div>
+      </div>
+      <div class="form-group"><label for="{{ comment_form.content.id_for_label }}">Comment *</label>{{ comment_form.content }}{{ comment_form.content.errors }}</div>
+      <button type="submit" class="btn btn-primary">Post comment</button>
+      <p class="form-note">Comments are reviewed before appearing publicly.</p>
+    </form>
+  </div>
+</section>
+{% endblock %}

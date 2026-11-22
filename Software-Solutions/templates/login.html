@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Log in — {{ site.site_name }}{% endblock %}
+{% block content %}
+<section class="auth-section">
+  <div class="auth-card reveal">
+    <span class="eyebrow">Welcome back</span>
+    <h1>Log in to your account</h1>
+    <p class="muted-text">Access your dashboard and inquiries.</p>
+    {% if messages %}{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}{% endif %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="form-group">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {{ field.errors }}
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary btn-block">Log in <span>&rarr;</span></button>
+    </form>
+    <div class="auth-links">
+      <a href="{% url 'accounts:password_reset' %}">Forgot password?</a>
+      <a href="{% url 'accounts:register' %}">Create an account</a>
+    </div>
+  </div>
+</section>
+{% endblock %}
