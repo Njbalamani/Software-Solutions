@@ -7,6 +7,7 @@ Production-oriented Django website for BALATECH cloud, web, database, API, and c
 | Section | What it covers |
 | --- | --- |
 | [Project summary](#project-summary) | Stack, capabilities, and design constraints |
+| [Diagrams](#diagrams) | Architecture, structure, request flow, setup, lifecycle, and ERD |
 | [Repository structure](#repository-structure) | Folder-by-folder layout |
 | [Requirements](#requirements) | Python, packages, and external tools |
 | [Environment variables](#environment-variables) | Configuration reference |
@@ -43,6 +44,182 @@ Production-oriented Django website for BALATECH cloud, web, database, API, and c
 | API | Public read endpoints, protected inquiry management, token auth, filtering, search, pagination |
 | SEO | Meta tags, JSON-LD, `robots.txt`, dynamic `sitemap.xml` |
 | Security | CSRF, staff permissions, security headers, env-based secrets, no committed `.env` |
+
+## Diagrams
+
+GitHub renders the Mermaid diagrams below natively.
+
+### 1. High-level architecture
+
+```mermaid
+flowchart LR
+    U[Browser / API client] --> N[Nginx / HTTPS reverse proxy]
+    N --> G[Gunicorn WSGI server]
+    G --> DJ[Django application<br/>config.settings]
+    DJ --> MW[Middleware<br/>security headers, sessions,<br/>auth, CSRF, messages]
+    MW --> V[Views / DRF views]
+    V --> F[Forms / Serializers]
+    F --> S[Models + service helpers]
+    S --> DB[(SQLite / MySQL)]
+    S --> CA[(Django cache<br/>rate limiting)]
+    S --> EM[SMTP email service]
+    V --> R[Templates / JSON responses]
+    R --> U
+```
+
+### 2. Repository structure flow
+
+```mermaid
+flowchart TD
+    ROOT[Software-Solutions repository] --> RREADME[README.md]
+    ROOT --> RLICENSE[LICENSE]
+    ROOT --> RGIT[.gitignore]
+    ROOT --> APP[Software-Solutions/ Django project]
+
+    APP --> CFG[config/<br/>settings, urls, wsgi, asgi]
+    APP --> APPS[apps/]
+    APP --> TPL[templates/]
+    APP --> STATIC[static/<br/>CSS + JavaScript]
+    APP --> TESTS[tests/]
+    APP --> ENV[.env.example<br/>.env is ignored]
+    APP --> REQ[requirements.txt]
+    APP --> MNG[manage.py]
+
+    APPS --> A1[accounts]
+    APPS --> A2[core]
+    APPS --> A3[services]
+    APPS --> A4[portfolio]
+    APPS --> A5[inquiries]
+    APPS --> A6[blog]
+    APPS --> A7[dashboard]
+    APPS --> A8[api]
+
+    TPL --> PUB[Public pages]
+    TPL --> AUTH[Auth + account pages]
+    TPL --> DASH[Dashboard templates]
+```
+
+### 3. Backend request-handling flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant U as config/urls.py
+    participant M as Middleware
+    participant V as View / API view
+    participant F as Form / Serializer
+    participant S as Model / Service
+    participant D as Database
+    participant R as Template / JSON
+
+    C->>U: HTTP request
+    U->>M: Match route
+    M->>V: Attach request.user, session, messages, security headers
+    V->>F: Validate POST data
+    F-->>V: cleaned_data or errors
+    V->>S: Query, save, or call helper
+    S->>D: ORM read/write
+    D-->>S: Result
+    S-->>V: Objects / computed values
+    V->>R: Render HTML or DRF JSON
+    R-->>C: HTTP response
+```
+
+### 4. Install and run workflow
+
+```mermaid
+flowchart TD
+    A[git clone repository] --> B[cd Software-Solutions/Software-Solutions]
+    B --> C[python -m venv venv]
+    C --> D[Activate venv]
+    D --> E[pip install -r requirements.txt]
+    E --> F[copy .env.example .env]
+    F --> G[Set SECRET_KEY, hosts, email, DB]
+    G --> H[python manage.py check]
+    H --> I[python manage.py migrate]
+    I --> J[python manage.py seed_data]
+    J --> K[python manage.py createsuperuser]
+    K --> L[python manage.py runserver]
+    L --> M["Open http://127.0.0.1:8000/"]
+```
+
+### 5. Inquiry lifecycle
+
+```mermaid
+flowchart TD
+    A[Contact form or POST /api/inquiries/] --> B{Honeypot empty?}
+    B -- No --> X[Silently reject]
+    B -- Yes --> C{Rate limited?}
+    C -- Yes --> Y[Return throttled/error message]
+    C -- No --> D[ContactForm / InquiryCreateSerializer]
+    D --> E{Valid + not duplicate?}
+    E -- No --> Z[Return field errors]
+    E -- Yes --> F[Save ProjectInquiry]
+    F --> G[Record rate-limit hit]
+    F --> H[notify_admin]
+    F --> I[notify_submitter]
+    H --> J[Staff dashboard]
+    J --> K[Assign to staff]
+    J --> L[Update status / add notes]
+    L --> M{Open longer than 48h?}
+    M -- Yes --> N[SLA breach flag]
+    M -- No --> O[Within SLA]
+```
+
+### 6. Data model relationships
+
+```mermaid
+erDiagram
+    USER ||--o| PROFILE : has
+    USER ||--o{ BLOGPOST : authors
+    USER ||--o{ INQUIRYNOTE : writes
+    USER ||--o{ PROJECTINQUIRY : assigned_to
+
+    SERVICECATEGORY ||--o{ SERVICE : contains
+    SERVICE ||--o{ PROJECTINQUIRY : requested_for
+
+    PROJECTCATEGORY ||--o{ PORTFOLIOPROJECT : contains
+
+    BLOGCATEGORY ||--o{ BLOGPOST : contains
+    BLOGPOST ||--o{ BLOGCOMMENT : receives
+
+    PROJECTINQUIRY ||--o{ INQUIRYNOTE : has
+
+    USER {
+        int id PK
+        string email UK
+        string username
+        bool is_staff
+    }
+    SERVICE {
+        int id PK
+        string title
+        string slug UK
+        int views
+        bool is_published
+    }
+    BLOGPOST {
+        int id PK
+        string title
+        string slug UK
+        int views
+        bool is_published
+    }
+    PROJECTINQUIRY {
+        int id PK
+        string full_name
+        string email
+        string status
+        string budget
+        datetime created_at
+    }
+    BLOGCOMMENT {
+        int id PK
+        string author_name
+        string author_email
+        bool is_approved
+    }
+```
 
 ## Repository structure
 
